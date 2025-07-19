@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">Вход в облачное хранилище</div>
+            
+            {{if .error}}
+            <div class="error-message">{{.error}}</div>
+            {{end}}
+
+            <form method="POST" action="/web/login" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" required autocomplete="email" autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input id="password" type="password" name="password" required autocomplete="current-password">
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" name="remember" id="remember">
+                    <label for="remember">Запомнить меня</label>
+                </div>
+
+                <button type="submit" class="login-btn">Войти</button>
+
+                <a class="forgot-password" href="#">Забыли пароль?</a>
+
+                <div class="register-link">
+                    Нет аккаунта?
+                    <a href="/register">Зарегистрироваться</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

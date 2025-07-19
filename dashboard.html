@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-box">
+            <!-- Верхняя черная часть -->
+            <div class="profile-top">
+                <div class="profile-header d-flex justify-content-between align-items-center flex-wrap">
+                    <span>Здравствуйте, {{.user.Name}}</span>
+
+                    <div class="d-flex align-items-center gap-3 mt-2 mt-md-0">
+                        <span class="badge">
+                            Картинок: {{.count}}
+                        </span>
+
+                        <form method="GET" action="/dashboard">
+                            <button type="submit" class="btn btn-sm btn-outline-light">
+                                Обновить
+                            </button>
+                        </form>
+
+                        <form method="POST" action="/web/logout">
+                            <button type="submit" class="btn btn-sm btn-outline-light">
+                                Выйти
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижняя белая часть с картинками -->
+            <div id="images-container" class="images-container">
+                {{if .images}}
+                    {{range .images}}
+                        <div class="image-card">
+                            <div class="image-info">
+                                <a href="/api/images/{{.Image}}" target="_blank">
+                                    <img src="/api/images/{{.Image}}/thumbnail" alt="User Image">
+                                </a>
+                                <span class="image-name" title="{{.Image}}">
+                                    {{if gt (len .Image) 10}}
+                                        {{slice .Image 0 10}}...
+                                    {{else}}
+                                        {{.Image}}
+                                    {{end}}
+                                </span>
+                            </div>
+                            <button class="delete-btn delete-image" data-id="{{.ID}}">
+                                Удалить
+                            </button>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="no-images">
+                        <p>У вас пока нет загруженных изображений.</p>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.delete-image').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!confirm('Вы уверены, что хотите удалить это изображение?')) return;
+
+                    const imageId = this.getAttribute('data-id');
+
+                    fetch(`/api/images/${imageId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + getCookie('auth_token')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.image-card').remove();
+                            } else {
+                                alert('Ошибка при удалении изображения');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Ошибка при удалении изображения');
+                        });
+                });
+            });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

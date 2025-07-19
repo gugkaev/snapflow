@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление токенами - SnapFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Управление API токенами</h1>
+            <nav>
+                <a href="/admin/tokens" class="active">Токены</a>
+                <a href="/admin/users">Пользователи</a>
+                <a href="/dashboard">Главная</a>
+                <a href="/web/logout">Выход</a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            {{if .success}}
+            <div class="success-message">{{.success}}</div>
+            {{end}}
+
+            {{if .error}}
+            <div class="error-message">{{.error}}</div>
+            {{end}}
+
+            {{if .token}}
+            <div class="token-result">
+                <h3>Новый токен создан:</h3>
+                <div class="token-display">
+                    <input type="text" value="{{.token.Token}}" readonly onclick="this.select()">
+                    <button onclick="copyToken()">Копировать</button>
+                </div>
+                <p><strong>Важно:</strong> Сохраните этот токен, он больше не будет показан!</p>
+            </div>
+            {{end}}
+
+            <div class="create-token-form">
+                <h3>Создать новый токен</h3>
+                <form method="POST" action="/admin/tokens">
+                    <div class="form-group">
+                        <label for="expires_at">Срок действия (опционально)</label>
+                        <input type="date" id="expires_at" name="expires_at">
+                        <small>Оставьте пустым для токена без срока действия</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Создать токен</button>
+                </form>
+            </div>
+
+            <div class="tokens-list">
+                <h3>Существующие токены</h3>
+                {{if .tokens}}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Токен</th>
+                            <th>Для регистрации</th>
+                            <th>Срок действия</th>
+                            <th>Создан</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .tokens}}
+                        <tr>
+                            <td>{{.ID}}</td>
+                            <td>
+                                <code>{{slice .Token 0 16}}...</code>
+                            </td>
+                            <td>
+                                {{if .ForRegistration}}
+                                    <span class="badge badge-success">Да</span>
+                                {{else}}
+                                    <span class="badge badge-secondary">Нет</span>
+                                {{end}}
+                            </td>
+                            <td>
+                                {{if .ExpiresAt}}
+                                    {{.ExpiresAt.Format "2006-01-02"}}
+                                {{else}}
+                                    Без ограничений
+                                {{end}}
+                            </td>
+                            <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+                {{else}}
+                <p>Токенов пока нет.</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToken() {
+            const tokenInput = document.querySelector('.token-display input');
+            tokenInput.select();
+            document.execCommand('copy');
+            
+            const button = document.querySelector('.token-display button');
+            const originalText = button.textContent;
+            button.textContent = 'Скопировано!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
